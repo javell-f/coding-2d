@@ -12,6 +12,7 @@ public class RubyController : MonoBehaviour
 
     public AudioClip throwSound;
     public AudioClip hitSound;
+    public AudioClip GameOver;
 
     public ParticleSystem gainHealthParticles;
     public ParticleSystem loseHealthParticles;
@@ -43,9 +44,6 @@ public class RubyController : MonoBehaviour
         currentHealth = maxHealth;
         audioSource = GetComponent<AudioSource>();
 
-        
-        gainHealthParticles = Instantiate(gainHealthParticles);
-        loseHealthParticles = Instantiate(loseHealthParticles);
 
         
         if (gameOverText != null)
@@ -87,7 +85,7 @@ public class RubyController : MonoBehaviour
 
             if (Input.GetKeyDown(KeyCode.X))
             {
-                RaycastHit2D hit = Physics2D.Raycast(rigidbody2d.position + Vector2.up * 0.2f, lookDirection, 1.5f, LayerMask.GetMask("NPC"));
+                RaycastHit2D hit = Physics2D.Raycast(rigidbody2d.position + Vector2.up * 0.2f, lookDirection, 1000.5f, LayerMask.GetMask("NPC"));
                 if (hit.collider != null)
                 {
                     NonPlayerCharacter character = hit.collider.GetComponent<NonPlayerCharacter>();
@@ -122,7 +120,6 @@ public class RubyController : MonoBehaviour
             isInvincible = true;
             invincibleTimer = timeInvincible;
 
-            
             if (loseHealthParticles != null)
             {
                 loseHealthParticles.Play();
@@ -133,11 +130,11 @@ public class RubyController : MonoBehaviour
             if (currentHealth <= 0)
             {
                 StartCoroutine(GameOverSequence());
+                PlaySound(GameOver);
             }
         }
         else if (amount > 0)
         {
-            
             if (gainHealthParticles != null)
             {
                 gainHealthParticles.Play();
@@ -150,11 +147,16 @@ public class RubyController : MonoBehaviour
         UIHealthBar.instance.SetValue(currentHealth / (float)maxHealth);
     }
 
+    public void MakeFaster(float speedIncreaseFactor)
+    {
+        speed *= speedIncreaseFactor;
+    }
+
     IEnumerator GameOverSequence()
     {
-        isGameOver = true; 
+        isGameOver = true;
 
-        // Enable the game over text
+        
         if (gameOverText != null)
         {
             gameOverText.gameObject.SetActive(true);
@@ -165,7 +167,7 @@ public class RubyController : MonoBehaviour
             yield return null;
         }
 
-        // Restart the game
+     
         RestartGame();
     }
 
